@@ -13,6 +13,8 @@ class Canonical():
         self.A = A
         self.b = b
         self.description = description
+        self.m = b.shape[0]
+        self.n = c.shape[0]
 
     def printRepresentation(self):
         """ Prints to the console the problem representation. """
