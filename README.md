@@ -1,6 +1,7 @@
 # Simplex
 
 **:warning: Still work in progress**
+
 Simplex algorithm implementation for Linear programming class.
 
 ## Installing
