@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from simplex.problems.canonical import Canonical
+from simplex.simplex_method import SimplexMethod
 
 if __name__ == '__main__':
     # Definir um problema na forma normal
@@ -9,9 +10,6 @@ if __name__ == '__main__':
     b = np.transpose(np.array([20, 20, 20]))
 
     # Definir instancia do simplex
-    canonical_form_problem = Canonical(c, A, b, "Min -10x1 -12x2 -12x3")
-    # canonical_form_problem.printRepresentation()
-    canonical_form_problem.startBasis()
-
-    # Executar o algoritmo
-    # Exibir a saída
+    problem = Canonical(c, A, b, "Min -10x1 -12x2 -12x3")
+    simplex = SimplexMethod(problem)
+    simplex.run()
