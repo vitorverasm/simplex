@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 
 
@@ -21,18 +22,54 @@ class Canonical():
         self.description = description
         self.m = b.shape[0]
         self.n = c.shape[0]
-        self.x = np.zeros((self.n, 1))  # solucao basica factivel
-        self.xb = np.zeros((self.m, 1))
+        self.basic_index = np.zeros((1, self.m))
+        self.B = np.zeros((self.m, self.m))
+        self.x = np.zeros((self.n, 1))
+        self.xb = np.zeros((1, self.m))
 
-    def startBasis(self):
-        print("m:{} e n:{}".format(self.m, self.n))
-        basis_index = np.sort(np.random.choice(self.n, self.m, False))
-        B = self.A[:, basis_index]
+    def get_cost(self):
+        """ Compute the value of the cost function:(c'x). """
+        return np.dot(self.c, self.x)[0]
+
+    def start_basis(self):
+        """
+        This function starts the problem basis structure with
+        the following steps:
+        1. Choose basic_index (from n variables choose m)
+        and store their indexes
+        2. Create B containing m columns of A
+        (only the columns with index in basic_index, Square matrix)
+        3. Calculate xb with the cost of the basic variables
+        (xb = Bˆ-1 * b)
+        4. Calculate x with values:
+        if x_i basic take value from xb_i, otherwise take 0
+        """
+        xb = np.full((1, self.m), -1.0)
+        while len(np.where(xb <= 0)[0]) > 0:
+            basic_index = np.sort(np.random.choice(self.n, self.m, False))
+            B = self.A[:, basic_index]
+            xb = np.dot(np.linalg.inv(B), self.b)
+
         x = np.zeros((self.n, 1))
-        xb = np.dot(np.linalg.inv(B), self.b)
-        print("xb:\n{}".format(xb))
+        for idx, x_i in np.ndenumerate(basic_index):
+            x[x_i] = xb[idx[0]]
 
-    def printRepresentation(self):
+        self.basic_index = basic_index
+        self.B = B
+        self.xb = xb
+        self.x = x
+
+    def get_reduced_costs(self):
+        nonbasic_index = np.setdiff1d(np.arange(self.n), self.basic_index)
+        reduced_cost = np.zeros((1, nonbasic_index.size))
+        # TODO: reduced costs(pdf pag 52)
+        # for idx, nb_idx in np.ndenumerate(nonbasic_index):
+        #     cj = self.c[nb_idx]
+        #     cb = np.transpose(self.c)[:, self.basic_index]
+        #     print("cxota:{}\n".format(cj))
+        #     print("cebe:{}\n".format(cb))
+
+    def print_representation(self):
         """ Prints to the console the problem representation. """
 
         print("#########################\n"+self.description+"\n")
