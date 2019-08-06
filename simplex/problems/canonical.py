@@ -64,8 +64,9 @@ class Canonical():
 
     # TODO: BUGADO AQ TO FAZENO AINDA
     def get_reduced_costs(self):
-        nonbasic_index = np.setdiff1d(np.arange(self.n), self.basic_index)
-        reduced_cost = np.zeros((1, nonbasic_index.size))
+        nonbasic_index = np.setdiff1d(
+            np.arange(self.n), self.basic_index).reshape(1, self.m)[0]
+        reduced_cost = np.zeros(nonbasic_index.size)
         for idx, nb_idx in np.ndenumerate(nonbasic_index):
             c_j = self.c[nb_idx]
             cb_transpose = np.transpose(self.cb)
