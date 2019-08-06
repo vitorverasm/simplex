@@ -45,6 +45,7 @@ class Canonical():
         if x_i basic take value from xb_i, otherwise take 0
         """
         xb = np.full((1, self.m), -1.0)
+        cb = np.zeros((self.m, 1))
         while len(np.where(xb <= 0)[0]) > 0:
             basic_index = np.sort(np.random.choice(self.n, self.m, False))
             B = self.A[:, basic_index]
@@ -53,21 +54,25 @@ class Canonical():
         x = np.zeros((self.n, 1))
         for idx, x_i in np.ndenumerate(basic_index):
             x[x_i] = xb[idx[0]]
+            cb[idx] = self.c[x_i]
 
         self.basic_index = basic_index
         self.B = B
         self.xb = xb
         self.x = x
+        self.cb = cb
 
+    # TODO: BUGADO AQ TO FAZENO AINDA
     def get_reduced_costs(self):
-        nonbasic_index = np.setdiff1d(np.arange(self.n), self.basic_index)
+        nonbasic_index = np.transpose(np.setdiff1d(np.arange(self.n), self.basic_index))
         reduced_cost = np.zeros((1, nonbasic_index.size))
-        # TODO: reduced costs(pdf pag 52)
-        # for idx, nb_idx in np.ndenumerate(nonbasic_index):
-        #     cj = self.c[nb_idx]
-        #     cb = np.transpose(self.c)[:, self.basic_index]
-        #     print("cxota:{}\n".format(cj))
-        #     print("cebe:{}\n".format(cb))
+        for idx, nb_idx in np.ndenumerate(nonbasic_index):
+            c_j = self.c[nb_idx]
+            cb_transpose = np.transpose(self.cb)
+            B_inv = np.linalg.inv(self.B)
+            A_j = self.A[:, nb_idx]
+            reduced_cost[idx] = np.dot(np.dot(cb_transpose, B_inv), A_j)[0]
+        print("rc:{}\n".format(reduced_cost))
 
     def print_representation(self):
         """ Prints to the console the problem representation. """
