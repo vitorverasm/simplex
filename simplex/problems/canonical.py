@@ -16,13 +16,14 @@ class Canonical():
     """
 
     def __init__(self, c, A, b, description="Canonical form problem"):
-        self.c = c
+        self.c = np.expand_dims(c, axis=0)
         self.A = A
         self.b = b
         self.description = description
         self.m = b.shape[0]
         self.n = c.shape[0]
         self.basic_index = np.zeros((1, self.m))
+        self.nonbasic_index = np.zeros((1, self.n - self.m))
         self.B = np.zeros((self.m, self.m))
         self.x = np.zeros((self.n, 1))
         self.xb = np.zeros((1, self.m))
@@ -54,13 +55,12 @@ class Canonical():
         x = np.zeros((self.n, 1))
         for idx, x_i in np.ndenumerate(basic_index):
             x[x_i] = xb[idx[0]]
-            cb[idx] = self.c[x_i]
 
         self.basic_index = basic_index
         self.B = B
         self.xb = xb
         self.x = x
-        self.cb = cb
+        self.cb = self.c[:, basic_index]
 
     # TODO: BUGADO AQ TO FAZENO AINDA
     def get_reduced_costs(self):
@@ -68,12 +68,27 @@ class Canonical():
             np.arange(self.n), self.basic_index).reshape(1, self.m)[0]
         reduced_cost = np.zeros(nonbasic_index.size)
         for idx, nb_idx in np.ndenumerate(nonbasic_index):
-            c_j = self.c[nb_idx]
-            cb_transpose = np.transpose(self.cb)
+            c_j = self.c[0, nb_idx]
             B_inv = np.linalg.inv(self.B)
-            A_j = self.A[:, nb_idx]
-            reduced_cost[idx] = np.dot(np.dot(cb_transpose, B_inv), A_j)[0]
-        print("rc:{}\n".format(reduced_cost))
+            A_j = self.A[:, nb_idx].reshape(self.m, 1)
+            reduced_cost[idx] = c_j - np.dot(np.dot(self.cb, B_inv), A_j)[0]
+        self.nonbasic_index = nonbasic_index
+        return reduced_cost
+
+    def changeBasis(self, theta_min, theta_l_idx, j, u):
+        new_basis = self.basic_index
+        l = new_basis[theta_l_idx]
+        new_basis[theta_l_idx] = j
+        B = self.A[:, new_basis]
+
+        xb = self.xb.reshape(3, 1) - np.dot(theta_min, u)
+        x = self.x
+        x[j] = theta_min
+        x[l] = 0
+        self.basic_index = new_basis
+        self.B = B
+        self.xb = xb
+        self.x = x
 
     def print_representation(self):
         """ Prints to the console the problem representation. """
