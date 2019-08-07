@@ -27,10 +27,10 @@ class SimplexMethod():
                 reduced_costs = self.problem.get_reduced_costs()
                 has_negatives = self.has_negative_value(reduced_costs)
             else:
-                print('Optimal X:{}\n'.format(self.problem.x))
+                print('Optimal X:\n{}'.format(self.problem.x))
                 print('Optimal Z(cost): -inf')
 
-        print('Optimal X:{}'.format(self.problem.x))
+        print('Optimal X:\n{}'.format(self.problem.x))
         print('Optimal Z(cost): {}'.format(self.problem.get_cost()))
 
     def has_negative_value(self, array):
