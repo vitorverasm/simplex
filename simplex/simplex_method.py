@@ -19,8 +19,9 @@ class SimplexMethod():
             B_inv = np.linalg.inv(self.problem.B)
             A_j = self.problem.A[:, j].reshape(self.problem.m, 1)
             u = np.dot(B_inv, A_j)
-            if len(np.where(u >= 0)[0]) > 0:
-                theta = (self.problem.xb).reshape(3, 1)/u
+            if len(np.where(u > 0)[0]) > 0:
+                xb = (self.problem.xb).reshape(3, 1)
+                theta = np.divide(xb, u, out=np.zeros_like(xb), where=xb != 0)
                 theta_min = theta.min()
                 theta_l_idx = np.where(theta == theta.min())[0][0]
                 self.problem.changeBasis(theta_min, theta_l_idx, j, u)

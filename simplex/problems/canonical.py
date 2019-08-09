@@ -48,7 +48,7 @@ class Canonical():
         xb = np.full((1, self.m), -1.0)
         cb = np.zeros((self.m, 1))
         while len(np.where(xb <= 0)[0]) > 0:
-            basic_index = np.sort(np.random.choice(self.n, self.m, False))
+            basic_index = np.random.choice(self.n, self.m, False)
             B = self.A[:, basic_index]
             xb = np.dot(np.linalg.inv(B), self.b)
 
@@ -71,24 +71,28 @@ class Canonical():
             c_j = self.c[0, nb_idx]
             B_inv = np.linalg.inv(self.B)
             A_j = self.A[:, nb_idx].reshape(self.m, 1)
-            reduced_cost[idx] = c_j - np.dot(np.dot(self.cb, B_inv), A_j)[0]
+            reduced_cost[idx] = c_j - \
+                np.dot(np.dot(self.c[0, self.basic_index], B_inv), A_j)[0]
         self.nonbasic_index = nonbasic_index
         return reduced_cost
 
     def changeBasis(self, theta_min, theta_l_idx, j, u):
+
+        d = np.zeros((self.n, 1))
+        d[self.basic_index] = -1*u
+        d[j] = 1
+        y = self.x + theta_min*d
+
         new_basis = self.basic_index
         l = new_basis[theta_l_idx]
         new_basis[theta_l_idx] = j
         B = self.A[:, new_basis]
 
-        xb = self.xb.reshape(3, 1) - np.dot(theta_min, u)
-        x = self.x
-        x[j] = theta_min
-        x[l] = 0
+        xb = np.dot(np.linalg.inv(B), self.b)
+        self.x = y
         self.basic_index = new_basis
         self.B = B
         self.xb = xb
-        self.x = x
 
     def print_representation(self):
         """ Prints to the console the problem representation. """
