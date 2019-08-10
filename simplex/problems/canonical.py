@@ -47,7 +47,7 @@ class Canonical():
         """
         xb = np.full((1, self.m), -1.0)
         cb = np.zeros((self.m, 1))
-        while len(np.where(xb <= 0)[0]) > 0:
+        while len(np.where(xb < 0)[0]) > 0:
             basic_index = np.random.choice(self.n, self.m, False)
             B = self.A[:, basic_index]
             xb = np.dot(np.linalg.inv(B), self.b)
@@ -66,12 +66,12 @@ class Canonical():
     def get_reduced_costs(self):
         nonbasic_index = np.setdiff1d(
             np.arange(self.n), self.basic_index).reshape(1, self.m)[0]
-        reduced_cost = np.zeros(nonbasic_index.size)
+        reduced_cost = np.zeros((self.n, 1))
         for idx, nb_idx in np.ndenumerate(nonbasic_index):
             c_j = self.c[0, nb_idx]
             B_inv = np.linalg.inv(self.B)
             A_j = self.A[:, nb_idx].reshape(self.m, 1)
-            reduced_cost[idx] = c_j - \
+            reduced_cost[nb_idx] = c_j - \
                 np.dot(np.dot(self.c[0, self.basic_index], B_inv), A_j)[0]
         self.nonbasic_index = nonbasic_index
         return reduced_cost

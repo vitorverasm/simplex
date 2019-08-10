@@ -15,15 +15,15 @@ class SimplexMethod():
         has_negatives = self.has_negative_value(reduced_costs)
         while has_negatives[0]:
             negative_index_chosen = np.random.choice(has_negatives[1], 1)[0]
-            j = self.problem.nonbasic_index[negative_index_chosen]
+            j = negative_index_chosen
             B_inv = np.linalg.inv(self.problem.B)
             A_j = self.problem.A[:, j].reshape(self.problem.m, 1)
             u = np.dot(B_inv, A_j)
             if len(np.where(u > 0)[0]) > 0:
-                xb = (self.problem.xb).reshape(3, 1)
-                theta = np.divide(xb, u, out=np.zeros_like(xb), where=xb != 0)
-                theta_min = theta.min()
-                theta_l_idx = np.where(theta == theta.min())[0][0]
+                xb = self.problem.x[self.problem.basic_index]
+                theta = np.divide(xb, u, out=np.zeros_like(xb), where=u > 0)
+                theta_min = np.min(theta[np.nonzero(theta)])
+                theta_l_idx = np.where(theta == theta_min)[0][0]
                 self.problem.changeBasis(theta_min, theta_l_idx, j, u)
                 reduced_costs = self.problem.get_reduced_costs()
                 has_negatives = self.has_negative_value(reduced_costs)
